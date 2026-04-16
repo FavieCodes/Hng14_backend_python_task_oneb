@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HNG Stage 1 - Profile Management API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .endpoint {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+        
+        .endpoint:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .method {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85em;
+            margin-right: 10px;
+        }
+        
+        .method.post {
+            background: #28a745;
+            color: white;
+        }
+        
+        .method.get {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .method.delete {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .url {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .description {
+            margin: 10px 0;
+            color: #666;
+        }
+        
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-size: 0.9em;
+        }
+        
+        .test-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .test-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .test-card input, .test-card select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        
+        .test-card button {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .test-card button:hover {
+            background: #5a67d8;
+        }
+        
+        .test-card button.delete-btn {
+            background: #dc3545;
+        }
+        
+        .test-card button.delete-btn:hover {
+            background: #c82333;
+        }
+        
+        .test-card button.get-btn {
+            background: #17a2b8;
+        }
+        
+        .test-card button.get-btn:hover {
+            background: #138496;
+        }
+        
+        .response-area {
+            margin-top: 15px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .filter-input {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .filter-input label {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 5px;
+            color: #666;
+        }
+        
+        .profiles-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .profile-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .profile-item:hover {
+            background: #e9ecef;
+        }
+        
+        .profile-item strong {
+            color: #667eea;
+        }
+        
+        .param {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        
+        .required {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .loading {
+            color: #667eea;
+            font-style: italic;
+        }
+        
+        .error {
+            color: #dc3545;
+        }
+        
+        .success {
+            color: #28a745;
+        }
+        
+        @media (max-width: 768px) {
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+            .content {
+                padding: 20px;
+            }
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Profile Management API</h1>
+            <p>HNG Cohort 14 - Stage 1 Backend Task</p>
+            <div class="badge">📡 REST API | 🔐 No Auth Required | 🌐 CORS Enabled</div>
+        </div>
+        
+        <div class="content">
+            <div class="section">
+                <h2>📋 Overview</h2>
+                <p>This API integrates three external services (<strong>Genderize</strong>, <strong>Agify</strong>, and <strong>Nationalize</strong>) to predict gender, age, and nationality based on a person's name. All data is stored in a database with UUID v7 identifiers and UTC timestamps.</p>
+            </div>
+            
+            <div class="section">
+                <h2>🧪 Interactive API Testing</h2>
+                <div class="two-columns">
+                    <!-- Left Column - POST and GET endpoints -->
+                    <div>
+                        <!-- POST Create Profile -->
+                        <div class="test-card">
+                            <h3>
+                                <span class="method post">POST</span>
+                                Create Profile
+                            </h3>
+                            <input type="text" id="createName" placeholder="Enter name (e.g., john)" style="width: 100%;">
+                            <button onclick="createProfile()">Create Profile</button>
+                            <div id="createResponse" class="response-area"></div>
+                        </div>
+                        
+                        <!-- GET All Profiles -->
+                        <div class="test-card">
+                            <h3>
+                                <span class="method get">GET</span>
+                                Get All Profiles
+                            </h3>
+                            <div class="filter-group">
+                                <div class="filter-input">
+                                    <label>Filter by Gender</label>
+                                    <input type="text" id="filterGender" placeholder="male/female">
+                                </div>
+                                <div class="filter-input">
+                                    <label>Filter by Country</label>
+                                    <input type="text" id="filterCountry" placeholder="NG, US, etc.">
+                                </div>
+                                <div class="filter-input">
+                                    <label>Filter by Age Group</label>
+                                    <select id="filterAgeGroup">
+                                        <option value="">All</option>
+                                        <option value="child">Child (0-12)</option>
+                                        <option value="teenager">Teenager (13-19)</option>
+                                        <option value="adult">Adult (20-59)</option>
+                                        <option value="senior">Senior (60+)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="get-btn" onclick="getAllProfiles()">Fetch Profiles</button>
+                            <div id="getAllResponse" class="response-area"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column - GET by ID and DELETE -->
+                    <div>
+                        <!-- GET Single Profile -->
+                        <div class="test-card">
+                            <h3>
+                                <span class="method get">GET</span>
+                                Get Profile by ID
+                            </h3>
+                            <input type="text" id="getProfileId" placeholder="Enter Profile UUID" style="width: 100%;">
+                            <button class="get-btn" onclick="getProfileById()">Get Profile</button>
+                            <div id="getOneResponse" class="response-area"></div>
+                        </div>
+                        
+                        <!-- DELETE Profile -->
+                        <div class="test-card">
+                            <h3>
+                                <span class="method delete">DELETE</span>
+                                Delete Profile
+                            </h3>
+                            <input type="text" id="deleteProfileId" placeholder="Enter Profile UUID" style="width: 100%;">
+                            <button class="delete-btn" onclick="deleteProfile()">Delete Profile</button>
+                            <div id="deleteResponse" class="response-area"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Profiles List (Click to auto-fill IDs) -->
+                <div class="test-card">
+                    <h3>📋 Profiles Database</h3>
+                    <div id="profilesList" class="profiles-list">
+                        <p class="loading">Click "Fetch Profiles" to load data...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📡 API Endpoints Documentation</h2>
+                
+                <!-- POST /api/profiles -->
+                <div class="endpoint">
+                    <div>
+                        <span class="method post">POST</span>
+                        <span class="url">/api/profiles</span>
+                    </div>
+                    <div class="description">
+                        <strong>Create a new profile</strong> - Fetches data from external APIs and stores it. If the name already exists, returns the existing profile.
+                    </div>
+                    
+                    <div><strong>Request Body:</strong></div>
+                    <pre>{
+  "name": "ella"  <span class="required">required</span>
+}</pre>
+                    
+                    <div><strong>Response (201 Created):</strong></div>
+                    <pre>{
+  "status": "success",
+  "data": {
+    "id": "e84b197e-94c9-4bb5-b8c4-26d19dab6201",
+    "name": "ella",
+    "gender": "female",
+    "gender_probability": 0.99,
+    "sample_size": 97517,
+    "age": 53,
+    "age_group": "adult",
+    "country_id": "CM",
+    "country_probability": 0.0968,
+    "created_at": "2026-04-16T11:04:30.200197Z"
+  }
+}</pre>
+                </div>
+                
+                <!-- GET /api/profiles -->
+                <div class="endpoint">
+                    <div>
+                        <span class="method get">GET</span>
+                        <span class="url">/api/profiles</span>
+                    </div>
+                    <div class="description">
+                        <strong>Get all profiles</strong> - Returns a list of all profiles with optional filtering.
+                    </div>
+                    
+                    <div><strong>Query Parameters (all optional):</strong></div>
+                    <div>
+                        <span class="param">gender</span> - Filter by gender (male/female) - case insensitive<br>
+                        <span class="param">country_id</span> - Filter by country code (NG, US, etc.) - case insensitive<br>
+                        <span class="param">age_group</span> - Filter by age group (child/teenager/adult/senior) - case insensitive
+                    </div>
+                    
+                    <div><strong>Response (200 OK):</strong></div>
+                    <pre>{
+  "status": "success",
+  "count": 2,
+  "data": [
+    {
+      "id": "uuid-1",
+      "name": "emmanuel",
+      "gender": "male",
+      "age": 25,
+      "age_group": "adult",
+      "country_id": "NG"
+    }
+  ]
+}</pre>
+                </div>
+                
+                <!-- GET /api/profiles/{id} -->
+                <div class="endpoint">
+                    <div>
+                        <span class="method get">GET</span>
+                        <span class="url">/api/profiles/{id}</span>
+                    </div>
+                    <div class="description">
+                        <strong>Get a single profile</strong> - Retrieves a specific profile by its UUID.
+                    </div>
+                </div>
+                
+                <!-- DELETE /api/profiles/{id} -->
+                <div class="endpoint">
+                    <div>
+                        <span class="method delete">DELETE</span>
+                        <span class="url">/api/profiles/{id}</span>
+                    </div>
+                    <div class="description">
+                        <strong>Delete a profile</strong> - Permanently removes a profile from the database.
+                    </div>
+                    <div><strong>Response:</strong> <code>204 No Content</code></div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🔧 Classification Rules</h2>
+                <h3>Age Groups</h3>
+                <table>
+                    <thead>
+                        <tr><th>Age Range</th><th>Age Group</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>0 - 12</td><td>child</td></tr>
+                        <tr><td>13 - 19</td><td>teenager</td></tr>
+                        <tr><td>20 - 59</td><td>adult</td></tr>
+                        <tr><td>60+</td><td>senior</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>HNG Cohort 14 - Backend Track | Built with Django REST Framework</p>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = '/api';
+        
+        // Helper function to display response
+        function displayResponse(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            if (isError) {
+                element.innerHTML = `<div class="error">❌ Error: ${JSON.stringify(data, null, 2)}</div>`;
+            } else {
+                element.innerHTML = `<div class="success">✅ Response:</div><pre>${JSON.stringify(data, null, 2)}</pre>`;
+            }
+        }
+        
+        // Create Profile
+        async function createProfile() {
+            const name = document.getElementById('createName').value;
+            if (!name) {
+                displayResponse('createResponse', { error: 'Please enter a name' }, true);
+                return;
+            }
+            
+            document.getElementById('createResponse').innerHTML = '<div class="loading">⏳ Creating profile...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/profiles`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name })
+                });
+                const data = await response.json();
+                displayResponse('createResponse', data);
+                document.getElementById('createName').value = '';
+                getAllProfiles(); // Refresh the profiles list
+            } catch (error) {
+                displayResponse('createResponse', { error: error.message }, true);
+            }
+        }
+        
+        // Get All Profiles with filters
+        async function getAllProfiles() {
+            const gender = document.getElementById('filterGender').value;
+            const country = document.getElementById('filterCountry').value;
+            const ageGroup = document.getElementById('filterAgeGroup').value;
+            
+            let url = `${API_BASE}/profiles`;
+            const params = [];
+            if (gender) params.push(`gender=${encodeURIComponent(gender)}`);
+            if (country) params.push(`country_id=${encodeURIComponent(country)}`);
+            if (ageGroup) params.push(`age_group=${encodeURIComponent(ageGroup)}`);
+            if (params.length) url += '?' + params.join('&');
+            
+            document.getElementById('getAllResponse').innerHTML = '<div class="loading">⏳ Fetching profiles...</div>';
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                displayResponse('getAllResponse', data);
+                displayProfilesList(data);
+            } catch (error) {
+                displayResponse('getAllResponse', { error: error.message }, true);
+            }
+        }
+        
+        // Display profiles list with clickable IDs
+        function displayProfilesList(data) {
+            const container = document.getElementById('profilesList');
+            if (data.status === 'success' && data.data && data.data.length > 0) {
+                let html = '';
+                data.data.forEach(profile => {
+                    html += `
+                        <div class="profile-item" onclick="fillProfileId('${profile.id}')">
+                            <strong>${profile.name}</strong><br>
+                            ID: <code>${profile.id}</code><br>
+                            Gender: ${profile.gender} | Age: ${profile.age} (${profile.age_group}) | Country: ${profile.country_id}
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = '<p>No profiles found. Create one using the form above!</p>';
+            }
+        }
+        
+        // Fill profile ID in input fields when clicked
+        function fillProfileId(id) {
+            document.getElementById('getProfileId').value = id;
+            document.getElementById('deleteProfileId').value = id;
+            // Optional: Auto-fetch the profile
+            getProfileById();
+        }
+        
+        // Get Single Profile by ID
+        async function getProfileById() {
+            const id = document.getElementById('getProfileId').value;
+            if (!id) {
+                displayResponse('getOneResponse', { error: 'Please enter a profile ID' }, true);
+                return;
+            }
+            
+            document.getElementById('getOneResponse').innerHTML = '<div class="loading">⏳ Fetching profile...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/profiles/${id}`);
+                const data = await response.json();
+                displayResponse('getOneResponse', data);
+            } catch (error) {
+                displayResponse('getOneResponse', { error: error.message }, true);
+            }
+        }
+        
+        // Delete Profile
+        async function deleteProfile() {
+            const id = document.getElementById('deleteProfileId').value;
+            if (!id) {
+                displayResponse('deleteResponse', { error: 'Please enter a profile ID' }, true);
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to delete profile ${id}?`)) {
+                return;
+            }
+            
+            document.getElementById('deleteResponse').innerHTML = '<div class="loading">⏳ Deleting profile...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/profiles/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.status === 204) {
+                    displayResponse('deleteResponse', { message: 'Profile deleted successfully!' });
+                    document.getElementById('deleteProfileId').value = '';
+                    document.getElementById('getProfileId').value = '';
+                    getAllProfiles(); // Refresh the list
+                } else {
+                    const data = await response.json();
+                    displayResponse('deleteResponse', data, true);
+                }
+            } catch (error) {
+                displayResponse('deleteResponse', { error: error.message }, true);
+            }
+        }
+        
+        // Load profiles on page load
+        window.onload = () => {
+            getAllProfiles();
+        };
+    </script>
+</body>
+</html>
