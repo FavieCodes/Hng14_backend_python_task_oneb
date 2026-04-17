@@ -1,6 +1,8 @@
 ﻿asgiref==3.11.1
 certifi==2026.2.25
 gunicorn==25.3.0
+psycopg2-binary==2.9.9
+dj-database-url==2.1.0
 charset-normalizer==3.4.7
 Django==6.0.4
 django-cors-headers==4.9.0
